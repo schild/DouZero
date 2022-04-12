@@ -53,11 +53,10 @@ class RLCardAgent(object):
                     for ac in acs:
                         if min_card in ac:
                             chosen_action = ac
-                            action = [char for char in chosen_action]
+                            action = list(chosen_action)
                             for i, c in enumerate(action):
                                 action[i] = RealCard2EnvCard[c]
-                            #print('lead action:', action)
-            # the rule of following cards
+                                                #print('lead action:', action)
             else:
                 the_type = CARD_TYPE[0][last_move][0][0]
                 chosen_action = ''
@@ -67,15 +66,18 @@ class RLCardAgent(object):
                     for i, c in enumerate(_ac):
                         _ac[i] = EnvCard2RealCard[c]
                     _ac = ''.join(_ac)
-                    if _ac != '' and the_type == CARD_TYPE[0][_ac][0][0]:
-                        if int(CARD_TYPE[0][_ac][0][1]) < rank:
-                            rank = int(CARD_TYPE[0][_ac][0][1])
-                            chosen_action = _ac
+                    if (
+                        _ac != ''
+                        and the_type == CARD_TYPE[0][_ac][0][0]
+                        and int(CARD_TYPE[0][_ac][0][1]) < rank
+                    ):
+                        rank = int(CARD_TYPE[0][_ac][0][1])
+                        chosen_action = _ac
                 if chosen_action != '':
-                    action = [char for char in chosen_action]
+                    action = list(chosen_action)
                     for i, c in enumerate(action):
                         action[i] = RealCard2EnvCard[c]
-                    #print('action:', action)
+                                #print('action:', action)
                 elif last_pid != 'landlord' and self.position != 'landlord':
                     action = []
 
@@ -97,15 +99,12 @@ def card_str2list(hand):
     return hand_list
 
 def list2card_str(hand_list):
-    card_str = ''
-    cards = [card for card in INDEX]
-    for index, count in enumerate(hand_list):
-        card_str += cards[index] * count
-    return card_str
+    cards = list(INDEX)
+    return ''.join(cards[index] * count for index, count in enumerate(hand_list))
 
 def pick_chain(hand_list, count):
     chains = []
-    str_card = [card for card in INDEX]
+    str_card = list(INDEX)
     hand_list = [str(card) for card in hand_list]
     hand = ''.join(hand_list[:12])
     chain_list = hand.split('0')
@@ -120,8 +119,7 @@ def pick_chain(hand_list, count):
                     for num in range(len(chain)):
                         str_chain += str_card[start+num]
                         hand_list[start+num] = int(hand_list[start+num]) - int(min(chain))
-                    for _ in range(min_count):
-                        chains.append(str_chain)
+                    chains.extend(str_chain for _ in range(min_count))
             add += len(chain)
     hand_list = [int(card) for card in hand_list]
     return (chains, hand_list)

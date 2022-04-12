@@ -29,8 +29,8 @@ class MovesGener(object):
             repeat_num = 0
 
         single_cards = sorted(list(set(cards)))
-        seq_records = list()
-        moves = list()
+        seq_records = []
+        moves = []
 
         start = i = 0
         longest = 1
@@ -72,30 +72,22 @@ class MovesGener(object):
         return moves
 
     def gen_type_1_single(self):
-        self.single_card_moves = []
-        for i in set(self.cards_list):
-            self.single_card_moves.append([i])
+        self.single_card_moves = [[i] for i in set(self.cards_list)]
         return self.single_card_moves
 
     def gen_type_2_pair(self):
-        self.pair_moves = []
-        for k, v in self.cards_dict.items():
-            if v >= 2:
-                self.pair_moves.append([k, k])
+        self.pair_moves = [[k, k] for k, v in self.cards_dict.items() if v >= 2]
         return self.pair_moves
 
     def gen_type_3_triple(self):
-        self.triple_cards_moves = []
-        for k, v in self.cards_dict.items():
-            if v >= 3:
-                self.triple_cards_moves.append([k, k, k])
+        self.triple_cards_moves = [
+            [k, k, k] for k, v in self.cards_dict.items() if v >= 3
+        ]
+
         return self.triple_cards_moves
 
     def gen_type_4_bomb(self):
-        self.bomb_moves = []
-        for k, v in self.cards_dict.items():
-            if v == 4:
-                self.bomb_moves.append([k, k, k, k])
+        self.bomb_moves = [[k, k, k, k] for k, v in self.cards_dict.items() if v == 4]
         return self.bomb_moves
 
     def gen_type_5_king_bomb(self):
@@ -105,43 +97,35 @@ class MovesGener(object):
         return self.final_bomb_moves
 
     def gen_type_6_3_1(self):
-        result = []
-        for t in self.single_card_moves:
-            for i in self.triple_cards_moves:
-                if t[0] != i[0]:
-                    result.append(t+i)
-        return result
+        return [
+            t + i
+            for t, i in itertools.product(
+                self.single_card_moves, self.triple_cards_moves
+            )
+            if t[0] != i[0]
+        ]
 
     def gen_type_7_3_2(self):
-        result = list()
-        for t in self.pair_moves:
-            for i in self.triple_cards_moves:
-                if t[0] != i[0]:
-                    result.append(t+i)
-        return result
+        return [
+            t + i
+            for t, i in itertools.product(self.pair_moves, self.triple_cards_moves)
+            if t[0] != i[0]
+        ]
 
     def gen_type_8_serial_single(self, repeat_num=0):
         return self._gen_serial_moves(self.cards_list, MIN_SINGLE_CARDS, repeat=1, repeat_num=repeat_num)
 
     def gen_type_9_serial_pair(self, repeat_num=0):
-        single_pairs = list()
-        for k, v in self.cards_dict.items():
-            if v >= 2:
-                single_pairs.append(k)
-
+        single_pairs = [k for k, v in self.cards_dict.items() if v >= 2]
         return self._gen_serial_moves(single_pairs, MIN_PAIRS, repeat=2, repeat_num=repeat_num)
 
     def gen_type_10_serial_triple(self, repeat_num=0):
-        single_triples = list()
-        for k, v in self.cards_dict.items():
-            if v >= 3:
-                single_triples.append(k)
-
+        single_triples = [k for k, v in self.cards_dict.items() if v >= 3]
         return self._gen_serial_moves(single_triples, MIN_TRIPLES, repeat=3, repeat_num=repeat_num)
 
     def gen_type_11_serial_3_1(self, repeat_num=0):
         serial_3_moves = self.gen_type_10_serial_triple(repeat_num=repeat_num)
-        serial_3_1_moves = list()
+        serial_3_1_moves = []
 
         for s3 in serial_3_moves:  # s3 is like [3,3,3,4,4,4]
             s3_set = set(s3)
@@ -150,14 +134,12 @@ class MovesGener(object):
             # Get any s3_len items from cards
             subcards = select(new_cards, len(s3_set))
 
-            for i in subcards:
-                serial_3_1_moves.append(s3 + i)
-
-        return list(k for k, _ in itertools.groupby(serial_3_1_moves))
+            serial_3_1_moves.extend(s3 + i for i in subcards)
+        return [k for k, _ in itertools.groupby(serial_3_1_moves)]
 
     def gen_type_12_serial_3_2(self, repeat_num=0):
         serial_3_moves = self.gen_type_10_serial_triple(repeat_num=repeat_num)
-        serial_3_2_moves = list()
+        serial_3_2_moves = []
         pair_set = sorted([k for k, v in self.cards_dict.items() if v >= 2])
 
         for s3 in serial_3_moves:
@@ -166,37 +148,25 @@ class MovesGener(object):
 
             # Get any s3_len items from cards
             subcards = select(pair_candidates, len(s3_set))
-            for i in subcards:
-                serial_3_2_moves.append(sorted(s3 + i * 2))
-
+            serial_3_2_moves.extend(sorted(s3 + i * 2) for i in subcards)
         return serial_3_2_moves
 
     def gen_type_13_4_2(self):
-        four_cards = list()
-        for k, v in self.cards_dict.items():
-            if v == 4:
-                four_cards.append(k)
-
-        result = list()
+        four_cards = [k for k, v in self.cards_dict.items() if v == 4]
+        result = []
         for fc in four_cards:
             cards_list = [k for k in self.cards_list if k != fc]
             subcards = select(cards_list, 2)
-            for i in subcards:
-                result.append([fc]*4 + i)
-        return list(k for k, _ in itertools.groupby(result))
+            result.extend([fc]*4 + i for i in subcards)
+        return [k for k, _ in itertools.groupby(result)]
 
     def gen_type_14_4_22(self):
-        four_cards = list()
-        for k, v in self.cards_dict.items():
-            if v == 4:
-                four_cards.append(k)
-
-        result = list()
+        four_cards = [k for k, v in self.cards_dict.items() if v == 4]
+        result = []
         for fc in four_cards:
             cards_list = [k for k, v in self.cards_dict.items() if k != fc and v>=2]
             subcards = select(cards_list, 2)
-            for i in subcards:
-                result.append([fc] * 4 + [i[0], i[0], i[1], i[1]])
+            result.extend([fc] * 4 + [i[0], i[0], i[1], i[1]] for i in subcards)
         return result
 
     # generate all possible moves from given cards

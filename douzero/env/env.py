@@ -109,13 +109,12 @@ class Env:
                 return bomb_num + 1.0
             else:
                 return 1.0
+        elif self.objective == 'adp':
+            return -2.0 ** bomb_num
+        elif self.objective == 'logadp':
+            return -bomb_num - 1.0
         else:
-            if self.objective == 'adp':
-                return -2.0 ** bomb_num
-            elif self.objective == 'logadp':
-                return -bomb_num - 1.0
-            else:
-                return -1.0
+            return -1.0
 
     @property
     def _game_infoset(self):
@@ -361,15 +360,14 @@ def _get_obs_landlord(infoset):
     z_batch = np.repeat(
         z[np.newaxis, :, :],
         num_legal_actions, axis=0)
-    obs = {
-            'position': 'landlord',
-            'x_batch': x_batch.astype(np.float32),
-            'z_batch': z_batch.astype(np.float32),
-            'legal_actions': infoset.legal_actions,
-            'x_no_action': x_no_action.astype(np.int8),
-            'z': z.astype(np.int8),
-          }
-    return obs
+    return {
+        'position': 'landlord',
+        'x_batch': x_batch.astype(np.float32),
+        'z_batch': z_batch.astype(np.float32),
+        'legal_actions': infoset.legal_actions,
+        'x_no_action': x_no_action.astype(np.int8),
+        'z': z.astype(np.int8),
+    }
 
 def _get_obs_landlord_up(infoset):
     """
@@ -459,15 +457,14 @@ def _get_obs_landlord_up(infoset):
     z_batch = np.repeat(
         z[np.newaxis, :, :],
         num_legal_actions, axis=0)
-    obs = {
-            'position': 'landlord_up',
-            'x_batch': x_batch.astype(np.float32),
-            'z_batch': z_batch.astype(np.float32),
-            'legal_actions': infoset.legal_actions,
-            'x_no_action': x_no_action.astype(np.int8),
-            'z': z.astype(np.int8),
-          }
-    return obs
+    return {
+        'position': 'landlord_up',
+        'x_batch': x_batch.astype(np.float32),
+        'z_batch': z_batch.astype(np.float32),
+        'legal_actions': infoset.legal_actions,
+        'x_no_action': x_no_action.astype(np.int8),
+        'z': z.astype(np.int8),
+    }
 
 def _get_obs_landlord_down(infoset):
     """
@@ -563,12 +560,11 @@ def _get_obs_landlord_down(infoset):
     z_batch = np.repeat(
         z[np.newaxis, :, :],
         num_legal_actions, axis=0)
-    obs = {
-            'position': 'landlord_down',
-            'x_batch': x_batch.astype(np.float32),
-            'z_batch': z_batch.astype(np.float32),
-            'legal_actions': infoset.legal_actions,
-            'x_no_action': x_no_action.astype(np.int8),
-            'z': z.astype(np.int8),
-          }
-    return obs
+    return {
+        'position': 'landlord_down',
+        'x_batch': x_batch.astype(np.float32),
+        'z_batch': z_batch.astype(np.float32),
+        'legal_actions': infoset.legal_actions,
+        'x_no_action': x_no_action.astype(np.int8),
+        'z': z.astype(np.int8),
+    }

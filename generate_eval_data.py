@@ -29,15 +29,12 @@ def generate():
 
 if __name__ == '__main__':
     flags = get_parser().parse_args()
-    output_pickle = flags.output + '.pkl'
+    output_pickle = f'{flags.output}.pkl'
 
     print("output_pickle:", output_pickle)
     print("generating data...")
 
-    data = []
-    for _ in range(flags.num_games):
-        data.append(generate())
-
+    data = [generate() for _ in range(flags.num_games)]
     print("saving pickle file...")
     with open(output_pickle,'wb') as g:
         pickle.dump(data,g,pickle.HIGHEST_PROTOCOL)

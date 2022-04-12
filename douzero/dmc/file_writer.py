@@ -147,9 +147,8 @@ class FileWriter:
             verbose: bool = False) -> None:
         if tick is not None:
             raise NotImplementedError
-        else:
-            to_log['_tick'] = self._tick
-            self._tick += 1
+        to_log['_tick'] = self._tick
+        self._tick += 1
         to_log['_time'] = time.time()
 
         old_len = len(self.fieldnames)
@@ -168,8 +167,11 @@ class FileWriter:
                 f.write('# %s\n' % ','.join(self.fieldnames))
 
         if verbose:
-            self._logger.info('LOG | %s', ', '.join(
-                ['{}: {}'.format(k, to_log[k]) for k in sorted(to_log)]))
+            self._logger.info(
+                'LOG | %s',
+                ', '.join([f'{k}: {to_log[k]}' for k in sorted(to_log)]),
+            )
+
 
         with open(self.paths['logs'], 'a') as f:
             writer = csv.DictWriter(f, fieldnames=self.fieldnames)

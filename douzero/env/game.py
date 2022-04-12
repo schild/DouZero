@@ -123,26 +123,26 @@ class GameEnv(object):
                 len(action) > 0 and \
                 len(self.three_landlord_cards) > 0:
             for card in action:
-                if len(self.three_landlord_cards) > 0:
-                    if card in self.three_landlord_cards:
-                        self.three_landlord_cards.remove(card)
-                else:
+                if len(self.three_landlord_cards) <= 0:
                     break
 
+                if card in self.three_landlord_cards:
+                    self.three_landlord_cards.remove(card)
         self.game_done()
         if not self.game_over:
             self.get_acting_player_position()
             self.game_infoset = self.get_infoset()
 
     def get_last_move(self):
-        last_move = []
         if len(self.card_play_action_seq) != 0:
-            if len(self.card_play_action_seq[-1]) == 0:
-                last_move = self.card_play_action_seq[-2]
-            else:
-                last_move = self.card_play_action_seq[-1]
+            return (
+                self.card_play_action_seq[-2]
+                if len(self.card_play_action_seq[-1]) == 0
+                else self.card_play_action_seq[-1]
+            )
 
-        return last_move
+        else:
+            return []
 
     def get_last_two_moves(self):
         last_two_moves = [[], []]
@@ -152,18 +152,20 @@ class GameEnv(object):
         return last_two_moves
 
     def get_acting_player_position(self):
-        if self.acting_player_position is None:
-            self.acting_player_position = 'landlord'
+        if (
+            self.acting_player_position is not None
+            and self.acting_player_position == 'landlord'
+        ):
+            self.acting_player_position = 'landlord_down'
+
+        elif (
+            self.acting_player_position is not None
+            and self.acting_player_position == 'landlord_down'
+        ):
+            self.acting_player_position = 'landlord_up'
 
         else:
-            if self.acting_player_position == 'landlord':
-                self.acting_player_position = 'landlord_down'
-
-            elif self.acting_player_position == 'landlord_down':
-                self.acting_player_position = 'landlord_up'
-
-            else:
-                self.acting_player_position = 'landlord'
+            self.acting_player_position = 'landlord'
 
         return self.acting_player_position
 
@@ -190,7 +192,7 @@ class GameEnv(object):
         rival_type = md.get_move_type(rival_move)
         rival_move_type = rival_type['type']
         rival_move_len = rival_type.get('len', 1)
-        moves = list()
+        moves = []
 
         if rival_move_type == md.TYPE_0_PASS:
             moves = mg.gen_moves()
