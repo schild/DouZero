@@ -99,10 +99,16 @@ def create_buffers(flags, device_iterator):
             _buffers: Buffers = {key: [] for key in specs}
             for _ in range(flags.num_buffers):
                 for key in _buffers:
-                    if not device == "cpu":
-                        _buffer = torch.empty(**specs[key]).to(torch.device('cuda:'+str(device))).share_memory_()
-                    else:
-                        _buffer = torch.empty(**specs[key]).to(torch.device('cpu')).share_memory_()
+                    _buffer = (
+                        torch.empty(**specs[key])
+                        .to(torch.device('cpu'))
+                        .share_memory_()
+                        if device == "cpu"
+                        else torch.empty(**specs[key])
+                        .to(torch.device('cuda:' + str(device)))
+                        .share_memory_()
+                    )
+
                     _buffers[key].append(_buffer)
             buffers[device][position] = _buffers
     return buffers

@@ -23,7 +23,7 @@ def mp_simulate(card_play_data_list, card_play_model_path_dict, q):
     players = load_card_play_models(card_play_model_path_dict)
 
     env = GameEnv(players)
-    for idx, card_play_data in enumerate(card_play_data_list):
+    for card_play_data in card_play_data_list:
         env.card_play_init(card_play_data)
         while not env.game_over:
             env.step()
@@ -36,7 +36,7 @@ def mp_simulate(card_play_data_list, card_play_model_path_dict, q):
          ))
 
 def data_allocation_per_worker(card_play_data_list, num_workers):
-    card_play_data_list_each_worker = [[] for k in range(num_workers)]
+    card_play_data_list_each_worker = [[] for _ in range(num_workers)]
     for idx, data in enumerate(card_play_data_list):
         card_play_data_list_each_worker[idx % num_workers].append(data)
 
@@ -74,7 +74,7 @@ def evaluate(landlord, landlord_up, landlord_down, eval_data, num_workers):
     for p in processes:
         p.join()
 
-    for i in range(num_workers):
+    for _ in range(num_workers):
         result = q.get()
         num_landlord_wins += result[0]
         num_farmer_wins += result[1]
@@ -83,6 +83,11 @@ def evaluate(landlord, landlord_up, landlord_down, eval_data, num_workers):
 
     num_total_wins = num_landlord_wins + num_farmer_wins
     print('WP results:')
-    print('landlord : Farmers - {} : {}'.format(num_landlord_wins / num_total_wins, num_farmer_wins / num_total_wins))
+    print(
+        f'landlord : Farmers - {num_landlord_wins / num_total_wins} : {num_farmer_wins / num_total_wins}'
+    )
+
     print('ADP results:')
-    print('landlord : Farmers - {} : {}'.format(num_landlord_scores / num_total_wins, 2 * num_farmer_scores / num_total_wins)) 
+    print(
+        f'landlord : Farmers - {num_landlord_scores / num_total_wins} : {2 * num_farmer_scores / num_total_wins}'
+    ) 

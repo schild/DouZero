@@ -38,6 +38,4 @@ class DeepAgent:
         y_pred = y_pred.detach().cpu().numpy()
 
         best_action_index = np.argmax(y_pred, axis=0)[0]
-        best_action = infoset.legal_actions[best_action_index]
-
-        return best_action
+        return infoset.legal_actions[best_action_index]
